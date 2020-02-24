@@ -1,16 +1,1 @@
-[
-  {
-    "clientName": "\u0410\u043b\u0435\u043a\u0441\u0435\u0439",
-    "clientPhone": "89223657785",
-    "clientTeacher": "0",
-    "clientWeekday": "wednesday",
-    "clientTime": "8:00"
-  },
-  {
-    "clientName": "\u0410\u043d\u0430\u0442\u043e\u043b\u0438\u0439",
-    "clientPhone": "89112322232",
-    "clientTeacher": "11",
-    "clientWeekday": "sunday",
-    "clientTime": "8:00"
-  }
-]
+[{"clientName": "\u0410\u043b\u0435\u043a\u0441\u0435\u0439", "clientPhone": "89223657785", "clientTeacher": "0", "clientWeekday": "wednesday", "clientTime": "8:00"}, {"clientName": "\u0410\u043d\u0430\u0442\u043e\u043b\u0438\u0439", "clientPhone": "89112322232", "clientTeacher": "11", "clientWeekday": "sunday", "clientTime": "8:00"}, {"clientName": "\u0410\u043b\u0435\u043a\u0441\u0435\u0439", "clientPhone": "89223657785", "clientTeacher": "11", "clientWeekday": "wednesday", "clientTime": "8:00"}]

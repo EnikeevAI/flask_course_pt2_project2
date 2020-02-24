@@ -1,4 +1,7 @@
 goals = {"travel": "Для путешествий", "study": "Для учебы", "work": "Для работы", "relocate": "Для переезда"}
+
+client_free_time = {"time1": "1-2", "time2": "3-5", "time3": "5-7", "time4": "7-10"}
+
 week = {"monday": "Понедельник",
         "tuesday": "Вторник",
         "wednesday": "Среда",

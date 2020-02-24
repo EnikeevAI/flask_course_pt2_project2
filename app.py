@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect
 import json
 import pprint
-from data import goals, teachers, week
+from data import goals, teachers, week, client_free_time
 
 app = Flask(__name__)
 
@@ -16,6 +16,14 @@ def find_teacher_json(teacher_id):
         if teacher['id'] == teacher_id:
             return teacher
 
+def add_aplication(aplications_json_file_name, client_info):
+    with open(aplications_json_file_name, 'r') as f:
+        applications = f.read()
+        applications_json = json.loads(applications)
+        applications_json.append(client_info)
+        applications = json.dumps(applications_json)
+    with open(aplications_json_file_name, 'w') as f:
+        f.write(applications)
 
 @app.route('/')
 def main():
@@ -47,14 +55,17 @@ def render_profile_teacher(id_teacher='1'):
 
 @app.route('/request/')
 def render_request():
-    return "Здесь будет заявка на подбор"
-    # return render_template()
+    return render_template('request.html', free_time=client_free_time, goals=goals)
 
 
-@app.route('/request_done/')
+@app.route('/request_done/', methods=['POST'])
 def render_request_done():
-    return "Заявка на подбор отправлена"
-    # return render_template()
+    client_request_info = {"clientName": request.form["clientName"],
+                   "clientPhone": request.form["clientPhone"],
+                   "clientGoal": request.form["goal"],
+                   "clientTime": request.form["time"]}
+    add_aplication("request.json", client_request_info)
+    return render_template('request_done.html', client=client_request_info, goals=goals)
 
 
 @app.route('/booking/<id_teacher>/<day>/<time>/')
@@ -65,21 +76,23 @@ def render_booking(id_teacher, day, time):
     return render_template('booking.html', teacher=teacher_json, lesson_time=lesson_time, week=week)
 
 
-@app.route('/booking_done/', methods=['POST', 'GET'])
+@app.route('/booking_done/', methods=['POST'])
 def render_booking_done():
-    client_info = {"clientName": request.form["clientName"],
+    client_booking_info = {"clientName": request.form["clientName"],
                    "clientPhone": request.form["clientPhone"],
                    "clientTeacher": request.form["clientTeacher"],
                    "clientWeekday": request.form["clientWeekday"],
                    "clientTime": request.form["clientTime"]}
-    with open("booking.json", 'r') as f:
+
+    add_aplication("booking.json", client_booking_info)
+    '''with open("booking.json", 'r') as f:
         applications = f.read()
         applications_json = json.loads(applications)
-        applications_json.append(client_info)
+        applications_json.append(client_booking_info)
         applications = json.dumps(applications_json)
     with open("booking.json", 'w') as f:
-        f.write(applications)
-    return render_template('booking_done.html', client=client_info, week=week)
+        f.write(applications)'''
+    return render_template('booking_done.html', client=client_booking_info, week=week)
 
 
 @app.errorhandler(404)
