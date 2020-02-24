@@ -23,7 +23,7 @@
                         <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
 
                         {% for day in teacher.free%}
-                        <h6 class="mt-4">{{day}}</h6>
+                        <h6 class="mt-4">{{week[day]}}</h6>
                             {% if day in bisy_days %}
                                 <p>Нет свободных уроков</p>
                             {% else %}

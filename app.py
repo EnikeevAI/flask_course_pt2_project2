@@ -1,13 +1,20 @@
 from flask import Flask, render_template, request, url_for, redirect
 import json
 import pprint
-from data import goals, teachers
+from data import goals, teachers, week
 
 app = Flask(__name__)
 
-with open ('teachers_data.json', 'w') as f:
+with open('teachers_data.json', 'w') as f:
     json.dump(teachers, f)
 
+
+def find_teacher_json(teacher_id):
+    with open("teachers_data.json", "r") as f:
+        teachers_json = json.load(f)
+    for teacher in teachers_json:
+        if teacher['id'] == teacher_id:
+            return teacher
 
 
 @app.route('/')
@@ -27,11 +34,7 @@ def render_profile_teacher(id_teacher='1'):
     teacher_id = int(id_teacher)
     free_time_counter = 0
     bisy_days = []
-    with open("teachers_data.json", "r") as f:
-        teachers_json = json.load(f)
-    for teacher in teachers_json:
-        if teacher['id'] == teacher_id:
-            teacher_json = teacher
+    teacher_json = find_teacher_json(teacher_id)
     for day in teacher_json['free']:
         for time in teacher_json['free'][day]:
             if teacher_json['free'][day][time] == True:
@@ -39,12 +42,7 @@ def render_profile_teacher(id_teacher='1'):
         if free_time_counter == 0:
             bisy_days.append(day)
         free_time_counter = 0
-    pprint.pprint(bisy_days)
-    return render_template('profile.html', teacher = teacher_json, bisy_days=bisy_days, goals=goals)
-
-'''{% if True not in teacher.free %}
-                                    
-                                {% endif %}'''
+    return render_template('profile.html', teacher=teacher_json, bisy_days=bisy_days, goals=goals, week=week)
 
 
 @app.route('/request/')
@@ -61,14 +59,27 @@ def render_request_done():
 
 @app.route('/booking/<id_teacher>/<day>/<time>/')
 def render_booking(id_teacher, day, time):
-    return "Здесь будет форма бронирования <id_teacher>"
-    # return render_template()
+    teacher_id = int(id_teacher)
+    lesson_time = {"day": day, "time": time}
+    teacher_json = find_teacher_json(teacher_id)
+    return render_template('booking.html', teacher=teacher_json, lesson_time=lesson_time, week=week)
 
 
-@app.route('/booking_done/')
+@app.route('/booking_done/', methods=['POST', 'GET'])
 def render_booking_done():
-    return "Заявка отправлена"
-    # return render_template()
+    client_info = {"clientName": request.form["clientName"],
+                   "clientPhone": request.form["clientPhone"],
+                   "clientTeacher": request.form["clientTeacher"],
+                   "clientWeekday": request.form["clientWeekday"],
+                   "clientTime": request.form["clientTime"]}
+    with open("booking.json", 'r') as f:
+        applications = f.read()
+        applications_json = json.loads(applications)
+        applications_json.append(client_info)
+        applications = json.dumps(applications_json)
+    with open("booking.json", 'w') as f:
+        f.write(applications)
+    return render_template('booking_done.html', client=client_info, week=week)
 
 
 @app.errorhandler(404)
