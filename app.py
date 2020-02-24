@@ -16,6 +16,7 @@ def find_teacher_json(teacher_id):
         if teacher['id'] == teacher_id:
             return teacher
 
+
 def add_aplication(aplications_json_file_name, client_info):
     with open(aplications_json_file_name, 'r') as f:
         applications = f.read()
@@ -25,6 +26,7 @@ def add_aplication(aplications_json_file_name, client_info):
     with open(aplications_json_file_name, 'w') as f:
         f.write(applications)
 
+
 @app.route('/')
 def main():
     return "Здесь будет главная"
@@ -33,8 +35,20 @@ def main():
 
 @app.route('/goals/<goal>')
 def render_goals(goal):
-    return "Здесь будет цель <goal>"
-    # return render_template()
+    find_teachers_rating = {}
+    teachers_result = []
+    if goal not in goals:
+        return page_not_found(404)
+    with open("teachers_data.json", "r") as f:
+        teachers_json = json.load(f)
+    for teacher in teachers_json:
+        if goal in teacher['goals']:
+            find_teachers_rating[teacher['id']] = teacher['rating']
+    for teacher_id_and_rating in sorted(find_teachers_rating.items(), key=lambda param: -param[1]):
+        for teacher in teachers_json:
+            if teacher_id_and_rating[0] == teacher['id']:
+                teachers_result.append(teacher)
+    return render_template('goal.html', teachers=teachers_result, goal=goals[goal])
 
 
 @app.route('/profiles/<id_teacher>')
@@ -43,6 +57,8 @@ def render_profile_teacher(id_teacher='1'):
     free_time_counter = 0
     bisy_days = []
     teacher_json = find_teacher_json(teacher_id)
+    if teacher_json == None:
+        return page_not_found(404)
     for day in teacher_json['free']:
         for time in teacher_json['free'][day]:
             if teacher_json['free'][day][time] == True:
@@ -61,9 +77,9 @@ def render_request():
 @app.route('/request_done/', methods=['POST'])
 def render_request_done():
     client_request_info = {"clientName": request.form["clientName"],
-                   "clientPhone": request.form["clientPhone"],
-                   "clientGoal": request.form["goal"],
-                   "clientTime": request.form["time"]}
+                           "clientPhone": request.form["clientPhone"],
+                           "clientGoal": request.form["goal"],
+                           "clientTime": request.form["time"]}
     add_aplication("request.json", client_request_info)
     return render_template('request_done.html', client=client_request_info, goals=goals)
 
@@ -79,19 +95,12 @@ def render_booking(id_teacher, day, time):
 @app.route('/booking_done/', methods=['POST'])
 def render_booking_done():
     client_booking_info = {"clientName": request.form["clientName"],
-                   "clientPhone": request.form["clientPhone"],
-                   "clientTeacher": request.form["clientTeacher"],
-                   "clientWeekday": request.form["clientWeekday"],
-                   "clientTime": request.form["clientTime"]}
+                           "clientPhone": request.form["clientPhone"],
+                           "clientTeacher": request.form["clientTeacher"],
+                           "clientWeekday": request.form["clientWeekday"],
+                           "clientTime": request.form["clientTime"]}
 
     add_aplication("booking.json", client_booking_info)
-    '''with open("booking.json", 'r') as f:
-        applications = f.read()
-        applications_json = json.loads(applications)
-        applications_json.append(client_booking_info)
-        applications = json.dumps(applications_json)
-    with open("booking.json", 'w') as f:
-        f.write(applications)'''
     return render_template('booking_done.html', client=client_booking_info, week=week)
 
 
