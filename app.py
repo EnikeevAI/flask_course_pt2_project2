@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect
 import json
-import pprint
+import random
 from data import goals, teachers, week, client_free_time
 
 app = Flask(__name__)
@@ -8,11 +8,12 @@ app = Flask(__name__)
 with open('teachers_data.json', 'w') as f:
     json.dump(teachers, f)
 
+with open("teachers_data.json", "r") as f:
+    teachers_json = json.load(f)
 
-def find_teacher_json(teacher_id):
-    with open("teachers_data.json", "r") as f:
-        teachers_json = json.load(f)
-    for teacher in teachers_json:
+
+def find_teacher_json(teacher_id, teachers=teachers_json):
+    for teacher in teachers:
         if teacher['id'] == teacher_id:
             return teacher
 
@@ -29,8 +30,14 @@ def add_aplication(aplications_json_file_name, client_info):
 
 @app.route('/')
 def main():
-    return "Здесь будет главная"
-    # return render_template()
+    message_to_user = 'Представляем Вашему вниманию всех наших преподавателей'
+    random_teachers = random.sample(teachers_json, 6)
+    return render_template('index.html', goals=goals, teachers=random_teachers, user_message=message_to_user)
+
+@app.route('/all/')
+def main_all_teachers():
+    message_to_user = 'Представляем Вашему вниманию всех наших преподавателей'
+    return render_template('index.html', goals=goals, teachers=teachers_json, user_message=message_to_user)
 
 
 @app.route('/goals/<goal>')
@@ -39,12 +46,11 @@ def render_goals(goal):
     teachers_result = []
     if goal not in goals:
         return page_not_found(404)
-    with open("teachers_data.json", "r") as f:
-        teachers_json = json.load(f)
     for teacher in teachers_json:
         if goal in teacher['goals']:
             find_teachers_rating[teacher['id']] = teacher['rating']
-    for teacher_id_and_rating in sorted(find_teachers_rating.items(), key=lambda param: -param[1]):
+    for teacher_id_and_rating in sorted(find_teachers_rating.items(),
+                                        key=lambda rating_sort_param: -rating_sort_param[1]):
         for teacher in teachers_json:
             if teacher_id_and_rating[0] == teacher['id']:
                 teachers_result.append(teacher)
