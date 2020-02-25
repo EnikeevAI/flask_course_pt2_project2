@@ -30,7 +30,7 @@ def add_aplication(aplications_json_file_name, client_info):
 
 @app.route('/')
 def main():
-    message_to_user = 'Представляем Вашему вниманию всех наших преподавателей'
+    message_to_user = 'Свободны прямо сейчас'
     random_teachers = random.sample(teachers_json, 6)
     return render_template('index.html', goals=goals, teachers=random_teachers, user_message=message_to_user)
 
