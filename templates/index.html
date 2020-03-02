@@ -23,7 +23,7 @@
                             <div class="col-9">
                                 <p class="float-right">Рейтинг: {{teacher.rating}} Ставка: {{teacher.price}} р/час</p>
                                 <h2 class="h4">{{teacher.name}}</h2>
-                                <p>{{teacher.about}}</p>
+                                <p>{{teacher.about}}|truncate(200)</p>
                                 <a href="/profiles/{{teacher.id}}" class="btn btn-outline-primary btn-sm mr-3 mb-2">
                                     Показать информацию и расписание</a>
                             </div>

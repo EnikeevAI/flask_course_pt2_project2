@@ -1,9 +1,13 @@
+from data import goals, teachers, week, client_free_time
 from flask import Flask, render_template, request, url_for, redirect
+from flask_sqlalchemy import SQLAlchemy
 import json
 import random
-from data import goals, teachers, week, client_free_time
+
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'SQLITE:///project2.db'
+db = SQLAlchemy(app)
 
 with open('teachers_data.json', 'w') as f:
     json.dump(teachers, f)
