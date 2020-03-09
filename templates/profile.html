@@ -12,7 +12,7 @@
 
                         <h1 class="h2">{{teacher.name}}</h1>
                         <p>{% for goal in teacher.goals%}
-                            <span class="badge badge-secondary mr-2"> {{goals[goal]}}  </span> {% endfor %}
+                            <span class="badge badge-secondary mr-2"> {{goal.goalTitle_ru}}  </span> {% endfor %}
                             Рейтинг: {{teacher.rating}} Ставка: {{teacher.price}} час</p>
                         <p>{{teacher.about}}</p>
 
@@ -22,13 +22,13 @@
 
                         <h4 class="mb-4 mt-5">Записаться на пробный урок</h4>
 
-                        {% for day in teacher.free%}
+                        {% for day in free%}
                         <h6 class="mt-4">{{week[day]}}</h6>
                             {% if day in bisy_days %}
                                 <p>Нет свободных уроков</p>
                             {% else %}
-                                {% for hour in teacher.free[day] %}
-                                    {% if teacher.free[day][hour] == True %}
+                                {% for hour in free[day] %}
+                                    {% if free[day][hour] == True %}
                                         <a href="/booking/{{teacher.id}}/{{day}}/{{hour}}" class="btn btn-outline-success mr-2">{{hour}} свободно</a>
                                     {% endif %}
                                 {% endfor %}
