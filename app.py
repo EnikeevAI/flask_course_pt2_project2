@@ -1,13 +1,10 @@
 import random
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, PasswordField, SubmitField, HiddenField
 import json
-from data import week, client_free_time
+from data import week
 from db_create_script import Booking, Goal, Request, Teacher
-from FormClasses import BookingForm
-
+from FormClasses import BookingForm, RequestForm
 
 
 app = Flask(__name__)
@@ -53,44 +50,57 @@ def render_profile_teacher(id_teacher=1):
         free_time_counter = 0
     return render_template('profile.html', teacher=teacher, free=teacher_free, bisy_days=bisy_days, week=week)
 
-"""@app.route('/request/')
+@app.route('/request/', methods=['GET', 'POST'])
 def render_request():
-    return render_template('request.html', free_time=client_free_time, goals=goals)
-
-@app.route('/request_done/', methods=['POST'])
-def render_request_done():
-    client_request_info = {"clientName": request.form["clientName"],
-                           "clientPhone": request.form["clientPhone"],
-                           "clientGoal": request.form["goal"],
-                           "clientTime": request.form["time"]}
-    add_aplication("request.json", client_request_info)
-    return render_template('request_done.html', client=client_request_info, goals=goals)"""
+    if request.method == 'POST':
+        request_form = RequestForm()
+        client = {
+            'clientName': request_form.clientName.data,
+            'clientPhone': request_form.clientPhone.data,
+            'clientGoal_eu': request_form.clientGoals.data,
+            'clientTime': request_form.clientFreeTime.data,
+        }
+        client_goal = db.session.query(Goal).filter(Goal.goalTitle_eu == client['clientGoal_eu']).first()
+        client_request = Request(clientName=client['clientName'],
+                                 clientPhone=client['clientPhone'],
+                                 clientTime=client['clientTime'],
+                                 clientGoal=client_goal)
+        db.session.add(client_request)
+        db.session.commit()
+        return render_template('request_done.html', client=client, goal=client_goal)
+    else:
+        request_form = RequestForm()
+        return render_template('request.html', form=request_form)
 
 @app.route('/booking/<id_teacher>/<day>/<time>/', methods=['GET', 'POST'])
 def render_booking(id_teacher, day, time):
-    teacher_id = int(id_teacher)
-    lesson_time = {"day": day, "time": time}
-    teacher = db.session.query(Teacher).filter(Teacher.id == teacher_id).first()
+
     if request.method == 'POST':
         booking_form = BookingForm()
 
-        clientName = booking_form.clientName.data
-        clientPhone = booking_form.clientPhone.data
-        clientWeekday = booking_form.clientWeekday.data
-        clientTime = booking_form.clientTime.data
-        clientTeacher_id = booking_form.clientTeacher.data
-        clientTeacher = db.session.query(Teacher).filter(Teacher.id == clientTeacher_id).first()
+        client = {
+            'clientName': booking_form.clientName.data,
+            'clientPhone': booking_form.clientPhone.data,
+            'clientWeekday': booking_form.clientWeekday.data,
+            'clientTime': booking_form.clientTime.data,
+            'clientTeacher_id': booking_form.clientTeacher.data
+        }
 
-        client_booking = Booking(clientName=clientName,
-                                 clientPhone=clientPhone,
-                                 clientWeekday=clientWeekday,
-                                 clientTime=clientTime,
+        clientTeacher = db.session.query(Teacher).filter(Teacher.id == client['clientTeacher_id']).first()
+
+        client_booking = Booking(clientName=client['clientName'],
+                                 clientPhone=client['clientPhone'],
+                                 clientWeekday=client['clientWeekday'],
+                                 clientTime=client['clientTime'],
                                  clientTeacher=clientTeacher)
         db.session.add(client_booking)
         db.session.commit()
         return render_template('booking_done.html', client=client_booking, week=week)
     else:
         booking_form = BookingForm()
+        teacher_id = int(id_teacher)
+        lesson_time = {"day": day, "time": time}
+        teacher = db.session.query(Teacher).filter(Teacher.id == teacher_id).first()
         return render_template('booking.html', form=booking_form, teacher=teacher, lesson_time=lesson_time, week=week)
 
 @app.errorhandler(404)

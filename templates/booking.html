@@ -19,10 +19,9 @@
                         {{ form.clientTime(value=lesson_time.time) }}
                         {{ form.clientTeacher(value=teacher.id) }}
                     </div>
-
-                    <label class="mb-1 mt-2" for="clientName">Вас зовут</label>
+                    {{ form.clientName.label(class="mb-1 mt-2") }}
                     {{ form.clientName(class='form-control') }}
-                    <label class="mb-1 mt-2" for="clientPhone">Ваш телефон</label>
+                    {{ form.clientPhone.label(class="mb-1 mt-2") }}
                     {{ form.clientPhone(class='form-control') }}
                     {{ form.csrf_token }}
                     {{ form.submit(class='btn btn-primary btn-block mt-4') }}
